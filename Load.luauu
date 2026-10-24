@@ -669,9 +669,6 @@ end)
 
 tabs.rebirths:AddLabel("")
 
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
 local autoLiftEnabled = false
 local autoRebirthEnabled = false
 
@@ -682,7 +679,7 @@ tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
 end)
 
 -- Auto Rebirth Gamepass / Feature Toggle (Bypassed)
-tabs.farming:AddSwitch("Auto Rebirth", function(state)
+tabs.rebirths:AddSwitch("Gamepass Auto Rebirth", function(state)
     -- Forced to true so it unlocks/enables without purchasing
     local hasGamepass = true
     
