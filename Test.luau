@@ -13,6 +13,7 @@ local window = library:AddWindow("ZenthonLee | Tester Version", {
 local tabs = {
   farming = window:AddTab("Farming")
   info = window:AddTab("Info")
+}
 
   tabs.info:Show()
   tabs.info:AddLabel("ZenthonLee WarFreakkk!!!")
