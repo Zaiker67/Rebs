@@ -667,6 +667,33 @@ task.spawn(function()
     end
 end)
 
+tabs.rebirths:AddLabel("")
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local autoLiftEnabled = false
+local autoRebirthEnabled = false
+
+-- Free Auto Lift Toggle
+tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
+    autoLiftEnabled = state
+    localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
+end)
+
+-- Auto Rebirth Gamepass / Feature Toggle (Bypassed)
+tabs.rebirths:AddSwitch("Gamepass Auto Rebirth", function(state)
+    -- Forced to true so it unlocks/enables without purchasing
+    local hasGamepass = true
+    
+    if state and not hasGamepass then
+        return
+    end
+
+    autoRebirthEnabled = state
+    localPlayer:SetAttribute("AutoRebirthEnabled", autoRebirthEnabled)
+end)
+
 -- Strength Tab
 
 tabs.strength.leaderstats = lp.player:WaitForChild("leaderstats")
