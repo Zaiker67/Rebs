@@ -681,14 +681,12 @@ tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
     localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
 end)
 
--- Auto Rebirth Gamepass / Feature Toggle
-tabs.rebirths:AddSwitch("Auto Rebirth", function(state)
-    -- Check if the player owns the gamepass or has permission before enabling
-    local hasGamepass = localPlayer:GetAttribute("HasRebirthGamepass") or false -- Replace with your game's ownership check
+-- Auto Rebirth Gamepass / Feature Toggle (Bypassed)
+tabs.farming:AddSwitch("Auto Rebirth", function(state)
+    -- Forced to true so it unlocks/enables without purchasing
+    local hasGamepass = true
     
     if state and not hasGamepass then
-        -- Optional: Prompt the player to buy the gamepass if they don't own it
-        -- MarketplaceService:PromptGamePassPurchase(localPlayer, GAMEPASS_ID)
         return
     end
 
