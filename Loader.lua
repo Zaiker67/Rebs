@@ -670,6 +670,7 @@ end)
 tabs.rebirths:AddLabel("")
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = Players.LocalPlayer
 
 local autoLiftEnabled = false
@@ -679,19 +680,39 @@ local autoRebirthEnabled = false
 tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
     autoLiftEnabled = state
     localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
+    
+    -- Optional: I-trigger ang in-game remote o function para sa Auto Lift kung kinakailangan
+    pcall(function()
+        local autoLiftRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("autoLiftEvent")
+        if autoLiftRemote then
+            autoLiftRemote:FireServer(autoLiftEnabled)
+        end
+    end)
 end)
 
--- Auto Rebirth Gamepass / Feature Toggle (Bypassed)
+-- Auto Rebirth Gamepass / Feature Toggle (Bypassed & Force-On)
 tabs.rebirths:AddSwitch("Gamepass Auto Rebirth", function(state)
-    -- Forced to true so it unlocks/enables without purchasing
-    local hasGamepass = true
-    
-    if state and not hasGamepass then
-        return
-    end
-
     autoRebirthEnabled = state
+    
+    -- I-set ang mga attributes para ma-bypass ang gamepass check sa client side
     localPlayer:SetAttribute("AutoRebirthEnabled", autoRebirthEnabled)
+    localPlayer:SetAttribute("HasAutoRebirthGamepass", true)
+    
+    -- Awtomatikong i-execute ang loop para sa pag-rebirth habang naka-on ang toggle
+    if autoRebirthEnabled then
+        task.spawn(function()
+            while autoRebirthEnabled do
+                pcall(function()
+                    -- Sinusubukang i-invoke ang rebirth remote kapag naka-on ang auto rebirth
+                    local rebirthRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("rebirthRemote")
+                    if rebirthRemote then
+                        rebirthRemote:InvokeServer("rebirthRequest")
+                    end
+                end)
+                task.wait(0.5) -- Pwedeng baguhin ang bilis ng pag-check sa rebirth
+            end
+        end)
+    end
 end)
 
 -- Strength Tab
