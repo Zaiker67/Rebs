@@ -65,7 +65,7 @@ local function isWhitelisted()
 end
 
 if not isWhitelisted() then
-    LocalPlayer:Kick("From BossKenzou: gamit script gusto, magbayad ayaw? BOBO!")
+    LocalPlayer:Kick("Kicked | Reason: Hindi Ka Nagbayad sakin PULPOL KA!")
     return
 end
 
@@ -671,17 +671,85 @@ tabs.rebirths:AddLabel("")
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
+
 local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 local autoLiftEnabled = false
 local autoRebirthEnabled = false
 
+-- Gamepass ID for Auto Rebirth in Muscle Legends
+local AUTO_REBIRTH_GAMEPASS_ID = 6438908 
+
+----------------------------------------------------------------------
+-- 1. Gamepass Ownership Hook (Client-Side Bypass)
+----------------------------------------------------------------------
+local oldUserOwnsGamePassAsync
+oldUserOwnsGamePassAsync = hookfunction(MarketplaceService.UserOwnsGamePassAsync, function(self, userId, gamepassId)
+    if userId == localPlayer.UserId and gamepassId == AUTO_REBIRTH_GAMEPASS_ID then
+        return true
+    end
+    return oldUserOwnsGamePassAsync(self, userId, gamepassId)
+end)
+
+----------------------------------------------------------------------
+-- 2. Visual UI Update Function
+----------------------------------------------------------------------
+local function updateVisuals(state)
+    pcall(function()
+        -- [Image 1 Bypass] Store UI Button
+        local storeGui = playerGui:FindFirstChild("storeGui")
+        if storeGui then
+            local autoRebirthFrame = storeGui:FindFirstChild("gamepassesFrame", true) and storeGui.gamepassesFrame:FindFirstChild("Auto Rebirth", true)
+            if autoRebirthFrame then
+                local buyButton = autoRebirthFrame:FindFirstChild("buyButton") or autoRebirthFrame:FindFirstChild("buy")
+                if buyButton then
+                    local label = buyButton:FindFirstChildWhichIsA("TextLabel")
+                    if label then
+                        label.Text = state and "OWNED" or "R$599"
+                    end
+                end
+            end
+        end
+
+        -- [Image 2 Bypass] Rebirth GUI "GET AUTO" Button
+        local rebirthGui = playerGui:FindFirstChild("rebirthGui")
+        if rebirthGui then
+            local autoBtn = rebirthGui:FindFirstChild("autoButton", true) or rebirthGui:FindFirstChild("getAuto", true)
+            if autoBtn then
+                local btnText = autoBtn:FindFirstChildWhichIsA("TextLabel")
+                if btnText then
+                    btnText.Text = state and "AUTO ON" or "GET AUTO"
+                end
+                autoBtn.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(0, 170, 0)
+            end
+        end
+
+        -- [Image 3 Bypass] Settings GUI "Auto Rebirth" Switch
+        local settingsGui = playerGui:FindFirstChild("settingsGui") or playerGui:FindFirstChild("settingsMenu")
+        if settingsGui then
+            local autoRebirthSetting = settingsGui:FindFirstChild("Auto Rebirth", true)
+            if autoRebirthSetting then
+                local statusLabel = autoRebirthSetting:FindFirstChild("statusLabel") or autoRebirthSetting:FindFirstChildWhichIsA("TextLabel")
+                if statusLabel then
+                    statusLabel.Text = state and "ON" or "OFF"
+                    statusLabel.TextColor3 = state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+                end
+            end
+        end
+    end)
+end
+
+----------------------------------------------------------------------
+-- 3. Script Toggles & Execution
+----------------------------------------------------------------------
+
 -- Free Auto Lift Toggle
-tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
+tabs.rebirths:AddSwitch("Gamepass Auto Lift", function(state)
     autoLiftEnabled = state
     localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
     
-    -- Optional: I-trigger ang in-game remote o function para sa Auto Lift kung kinakailangan
     pcall(function()
         local autoLiftRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("autoLiftEvent")
         if autoLiftRemote then
@@ -690,26 +758,29 @@ tabs.rebirths:AddSwitch("Free Auto Lift", function(state)
     end)
 end)
 
--- Auto Rebirth Gamepass / Feature Toggle (Bypassed & Force-On)
+-- Auto Rebirth Gamepass Bypass & Toggle
 tabs.rebirths:AddSwitch("Gamepass Auto Rebirth", function(state)
     autoRebirthEnabled = state
     
-    -- I-set ang mga attributes para ma-bypass ang gamepass check sa client side
+    -- Set Player Attributes
     localPlayer:SetAttribute("AutoRebirthEnabled", autoRebirthEnabled)
     localPlayer:SetAttribute("HasAutoRebirthGamepass", true)
-    
-    -- Awtomatikong i-execute ang loop para sa pag-rebirth habang naka-on ang toggle
+    localPlayer:SetAttribute("autoRebirth", autoRebirthEnabled)
+
+    -- Update UI elements (Store, Rebirth Frame, Settings)
+    updateVisuals(autoRebirthEnabled)
+
+    -- Auto Rebirth Loop
     if autoRebirthEnabled then
         task.spawn(function()
             while autoRebirthEnabled do
                 pcall(function()
-                    -- Sinusubukang i-invoke ang rebirth remote kapag naka-on ang auto rebirth
                     local rebirthRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("rebirthRemote")
                     if rebirthRemote then
                         rebirthRemote:InvokeServer("rebirthRequest")
                     end
                 end)
-                task.wait(0.5) -- Pwedeng baguhin ang bilis ng pag-check sa rebirth
+                task.wait(0.1) -- Frequency check for rebirths
             end
         end)
     end
