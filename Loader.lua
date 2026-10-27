@@ -627,11 +627,9 @@ tabs.rebirths.rebirths:GetPropertyChangedSignal("Value"):Connect(function()
     tabs.rebirths.updateStats()
 end)
 
-tabs.rebirths:AddLabel("")
+tabs.rebirths:AddLabel("Rebirthing:")
 
-tabs.rebirths:AddLabel("Rebirthing")
-
-tabs.rebirths:AddSwitch("Fast Rebirth (Packs & Boss Pets Supported)", function(state)
+tabs.rebirths:AddSwitch("Fast Rebirth (Supported Packs & Boss Pets)", function(state)
     tabs.rebirths.running = state
     if state then
         tabs.rebirths.hasStarted = true
