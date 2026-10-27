@@ -780,7 +780,7 @@ tabs.rebirths:AddSwitch("Gamepass Auto Rebirth (Bypassed)", function(state)
                         rebirthRemote:InvokeServer("rebirthRequest")
                     end
                 end)
-                task.wait(0.1) -- Frequency check for rebirths
+                task.wait(0.01) -- Frequency check for rebirths
             end
         end)
     end
