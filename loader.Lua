@@ -665,8 +665,6 @@ task.spawn(function()
     end
 end)
 
-tabs.rebirths:AddLabel("")
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -674,7 +672,6 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
-local autoLiftEnabled = false
 local autoRebirthEnabled = false
 
 -- Gamepass ID for Auto Rebirth in Muscle Legends
@@ -743,21 +740,8 @@ end
 -- 3. Script Toggles & Execution
 ----------------------------------------------------------------------
 
--- Free Auto Lift Toggle
-tabs.rebirths:AddSwitch("Gamepass Auto Lift", function(state)
-    autoLiftEnabled = state
-    localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
-    
-    pcall(function()
-        local autoLiftRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("autoLiftEvent")
-        if autoLiftRemote then
-            autoLiftRemote:FireServer(autoLiftEnabled)
-        end
-    end)
-end)
-
 -- Auto Rebirth Gamepass Bypass & Toggle
-tabs.rebirths:AddSwitch("Gamepass Auto Rebirth (Bypassed)", function(state)
+tabs.rebirths:AddSwitch("Auto Rebirth Gamepass (Bypassed)", function(state)
     autoRebirthEnabled = state
     
     -- Set Player Attributes
@@ -2128,6 +2112,7 @@ tabs.other.autoSpinWheel = false
 tabs.other.antiAFK = true
 tabs.other.antiKnockback = true
 tabs.other.lockPosition = false
+tabs.other.autoLift = false
 tabs.other.eggUsedThisCycle = false
 
 
@@ -2436,6 +2421,31 @@ tabs.other:AddSwitch("Lock Position", function(Value)
             getgenv().posLock = nil
         end
     end
+end)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+local autoLiftEnabled = false
+
+----------------------------------------------------------------------
+-- Script Toggles & Execution
+----------------------------------------------------------------------
+
+-- Free Auto Lift Toggle
+tabs.other:AddSwitch("Gamepass Auto Lift", function(state)
+    autoLiftEnabled = state
+    localPlayer:SetAttribute("AutoLiftEnabled", autoLiftEnabled)
+    
+    pcall(function()
+        local autoLiftRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("autoLiftEvent")
+        if autoLiftRemote then
+            autoLiftRemote:FireServer(autoLiftEnabled)
+        end
+    end)
 end)
 
 
