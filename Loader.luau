@@ -680,7 +680,7 @@ local autoLiftEnabled = false
 local autoRebirthEnabled = false
 
 -- Gamepass ID for Auto Rebirth in Muscle Legends
-local AUTO_REBIRTH_GAMEPASS_ID = 6438908 
+local AUTO_REBIRTH_GAMEPASS_ID = 2037308953 
 
 ----------------------------------------------------------------------
 -- 1. Gamepass Ownership Hook (Client-Side Bypass)
@@ -759,7 +759,7 @@ tabs.rebirths:AddSwitch("Gamepass Auto Lift", function(state)
 end)
 
 -- Auto Rebirth Gamepass Bypass & Toggle
-tabs.rebirths:AddSwitch("Gamepass Auto Rebirth", function(state)
+tabs.rebirths:AddSwitch("Gamepass Auto Rebirth (Bypassed)", function(state)
     autoRebirthEnabled = state
     
     -- Set Player Attributes
