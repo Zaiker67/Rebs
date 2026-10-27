@@ -2369,7 +2369,7 @@ tabs.other:AddSwitch("Anti-AFK", function(state)
         task.spawn(function()
             pcall(function()
                 StarterGui:SetCore("SendNotification", {
-                    Title = "M14EBR - Anti-AFK";
+                    Title = "AN94 | Anti-AFK";
                     Text = "Anti-AFK successfully loaded";
                     Icon = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=79956122844756"; -- Pinalitan ko ang format ng asset ID para mas sigurado
                     Duration = 5;
@@ -2915,11 +2915,11 @@ local function createSeparator()
 end
 
 -- [[ HEADER SECTION ]]
-tabs.info:AddLabel("Welcome to AN94 | PAID Script").TextSize = 20
+tabs.info:AddLabel("Welcome to AN94 | Paid Script").TextSize = 20
 createSeparator()
 
 -- [[ DEV CREDITS WITH RAINBOW EFFECT ]]
-local devLabel = tabs.info:AddLabel("Developer: PrimeKenzouu")
+local devLabel = tabs.info:AddLabel("Developer: BossKenzou")
 devLabel.TextSize = 22
 
 -- Rainbow Script for Owner Label
@@ -2946,6 +2946,11 @@ tabs.info:AddLabel("Special Thanks to our Script Tester ❤️").TextSize = 14
 createSeparator()
 
 tabs.info:AddLabel("✨ Specialized Fast Farming Script ✨").TextSize = 14
+createSeparator()
+
+tabs.info:AddLabel("TikTok: Kenzouu Warfreakkk!").TextSize = 14
+
+tabs.info:AddLabel("If you encountered any problem, PM/DM me on TikTok").TextSize = 14
 createSeparator()
 
 -- [[ TIKTOK SECTION ]]
