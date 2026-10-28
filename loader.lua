@@ -65,7 +65,7 @@ local function isWhitelisted()
 end
 
 if not isWhitelisted() then
-    LocalPlayer:Kick("Kicked | Reason: Hindi Ka Nagbayad sakin PULPOL KA!")
+    LocalPlayer:Kick("Kicked | Reason: Hindi Ka Nagbayad sakin PULPOL KANG PAKENING BULLSHIT KA!")
     return
 end
 
@@ -152,7 +152,7 @@ local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/P
 local silence = library:AddWindow("AN94 | PAID | Fast Farming - " .. greeting(), {
     title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(128, 128, 128), Color3.fromRGB(255, 255, 255)},
     title_bar_transparency = 0.2,
-    background = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(128, 128, 128), Color3.fromRGB(255, 255, 255)},
+    background = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(100, 100, 100), Color3.fromRGB(255, 255, 255)},
     background_transparency = 0.1,
     main_color = Color3.fromRGB(128, 128, 128),
     min_size = Vector2.new(500, 560),
@@ -173,7 +173,7 @@ local tabs = {
     boss = silence:AddTab("Kill Boss"),
     other = silence:AddTab("MiscV1"),
 	other2 = silence:AddTab("MiscV2"),
-	other3 = silence:AddTab("MiscV3"),
+	other3 = silence:AddTab("Machines (Miscv3)"),
     info = silence:AddTab("Info")
 }
 
@@ -2872,26 +2872,6 @@ end)
 
 tabs.other3:AddButton("Industrial Boulder",function()
     tabs.other3.tpE(Vector3.new(-5456.43, 61.06, 5231.54))
-end)
-
-tabs.other3:AddLabel("~~~~~~~~~~")
-
-tabs.other3:AddLabel("Overcharged Machines")
-
-tabs.other3:AddButton("Overcharged Bar Lift",function()
-    tabs.other3.tpE(Vector3.new(-3023.363, 151.797, 4696.859))
-end)
-
-tabs.other3:AddButton("Overcharged Squat",function()
-    tabs.other3.tpE(Vector3.new(-2673.216, 151.797, 5494.047))
-end)
-
-tabs.other3:AddButton("Overcharged Bench Press",function()
-    tabs.other3.tpE(Vector3.new(-2399.94, 187.00, 4522.49))
-end)
-
-tabs.other3:AddButton("Overcharged Boulder",function()
-    tabs.other3.tpE(Vector3.new(-2984.65, 154.51, 5255.58))
 end)
 
 tabs.other3:AddLabel("~~~~~~~~~~")
