@@ -150,7 +150,7 @@ end
 
 local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/PaidLib/raw/branch/main/M14Library.lua", true))()
 local silence = library:AddWindow("AN94 | PAID | Fast Farming - " .. greeting(), {
-    title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(128, 128, 128), Color3.fromRGB(255, 255, 255)},
+    title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(211, 211, 211), Color3.fromRGB(255, 255, 255)},
     title_bar_transparency = 0.2,
     background = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(100, 100, 100), Color3.fromRGB(255, 255, 255)},
     background_transparency = 0.1,
