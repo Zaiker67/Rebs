@@ -2339,7 +2339,7 @@ tabs.other:AddSwitch("Anti-AFK", function(state)
         task.spawn(function()
             pcall(function()
                 StarterGui:SetCore("SendNotification", {
-                    Title = "AN94 | Anti-AFK";
+                    Title = "M1887 | Anti-AFK";
                     Text = "Anti-AFK successfully loaded";
                     Icon = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=79693252930451"; -- Pinalitan ko ang format ng asset ID para mas sigurado
                     Duration = 5;
