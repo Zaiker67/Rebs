@@ -148,7 +148,7 @@ local function greeting(hour)
     else return "Good Night Sayo Bingot! " .. LocalPlayer.DisplayName end
 end
 
-local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/PaidLib/raw/branch/main/M14Library.lua", true))()
+local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/GUI-libraries/raw/branch/main/M1887.lua", true))()
 local silence = library:AddWindow("AN94 | PAID | Fast Farming - " .. greeting(), {
     title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0), Color3.fromRGB(211, 211, 211)},
     title_bar_transparency = 0.2,
