@@ -142,9 +142,9 @@ end
 
 local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/PaidLib/raw/branch/main/M14Library.lua", true))()
 local silence = library:AddWindow("M1887 | Paid Script - Pack & Boss Farm", {
-    title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(0, 0, 0), Color3.fromRGB(211, 211, 211)},
+    title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(20, 20, 20), Color3.fromRGB(211, 211, 211)},
     title_bar_transparency = 0.2,
-    background = {Color3.fromRGB(40, 40, 40), Color3.fromRGB(0, 0, 0), Color3.fromRGB(20, 20, 20)},
+    background = {Color3.fromRGB(40, 40, 40), Color3.fromRGB(0, 0, 0), Color3.fromRGB(211, 211, 211)},
     background_transparency = 0.1,
     main_color = Color3.fromRGB(211, 211, 211),
     min_size = Vector2.new(500, 560),
