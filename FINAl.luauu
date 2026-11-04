@@ -2098,7 +2098,7 @@ tabs.other.antiAFK = true
 tabs.other.antiKnockback = true
 tabs.other.lockPosition = false
 tabs.other.autoLift = false
-tabs.other.autoSpinSoulWheel = false
+tabs.other.autoSpinSoul = false
 tabs.other.eggUsedThisCycle = false
 
 
