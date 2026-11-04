@@ -2444,14 +2444,14 @@ tabs.other.spinSoulWheel = function()
 end
 
 tabs.other:AddSwitch("Spin Soul Wheel", function(bool)
-    _G.AutoSpinWheel = bool
+    _G.AutoSpinSoulWheel = bool
     
     if bool then
         task.spawn(function()
             tabs.other.rspin = game:GetService("ReplicatedStorage").rEvents.openSoulWheelRemote
             tabs.other.chances = game:GetService("ReplicatedStorage").shared.catalogs.fortuneWheelChances["Soul Wheel"]
             
-            while _G.AutoSpinWheel do
+            while _G.AutoSpinSoulWheel do
                 tabs.other.rspin:InvokeServer("openSoulWheel", tabs.other.chances)
                 task.wait(1)
             end
