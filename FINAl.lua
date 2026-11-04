@@ -2436,24 +2436,26 @@ end)
 
 tabs.other.spinSoulWheel = function()
     tabs.other.spinResult = table.pack(pcall(function()
-        return game:GetService("ReplicatedStorage").rEvents.openSoulWheelRemote:InvokeServer(
-            "openSoulWheel",
-            "Soul Wheel"
+        -- Change "SoulSpinRemote" and arguments to match the game's actual remote structure
+        return game:GetService("ReplicatedStorage").rEvents.SoulSpinRemote:InvokeServer(
+            "spinSoul", 
+            1 -- Usually represents spin count or type (e.g., Single Spin)
         )
     end))
 end
 
-tabs.other:AddSwitch("Spin Soul Wheel", function(bool)
-    _G.AutoSpinSoulWheel = bool
+tabs.other:AddSwitch("Auto Spin Soul", function(bool)
+    _G.AutoSpinSoul = bool
     
     if bool then
         task.spawn(function()
-            tabs.other.rspin = game:GetService("ReplicatedStorage").rEvents.openSoulWheelRemote
-            tabs.other.chances = game:GetService("ReplicatedStorage").shared.catalogs.fortuneWheelChances["Soul Wheel"]
+            local rspin = game:GetService("ReplicatedStorage").rEvents:WaitForChild("SoulSpinRemote")
             
-            while _G.AutoSpinSoulWheel do
-                tabs.other.rspin:InvokeServer("openSoulWheel", tabs.other.chances)
-                task.wait(1)
+            while _G.AutoSpinSoul do
+                pcall(function()
+                    rspin:InvokeServer("spinSoul", 1)
+                end)
+                task.wait(1) -- Adjust delay to prevent rate-limiting/kicking
             end
         end)
     end
