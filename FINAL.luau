@@ -2098,6 +2098,7 @@ tabs.other.antiAFK = true
 tabs.other.antiKnockback = true
 tabs.other.lockPosition = false
 tabs.other.autoLift = false
+tabs.other.autoSpinSoulWheel = false
 tabs.other.eggUsedThisCycle = false
 
 
@@ -2431,6 +2432,31 @@ tabs.other:AddSwitch("Gamepass Auto Lift", function(state)
             autoLiftRemote:FireServer(autoLiftEnabled)
         end
     end)
+end)
+
+tabs.other.spinSoulWheel = function()
+    tabs.other.spinResult = table.pack(pcall(function()
+        return game:GetService("ReplicatedStorage").rEvents.openSoulWheelRemote:InvokeServer(
+            "openSoulWheel",
+            "Soul Wheel"
+        )
+    end))
+end
+
+tabs.other:AddSwitch("Spin Soul Wheel", function(bool)
+    _G.AutoSpinWheel = bool
+    
+    if bool then
+        task.spawn(function()
+            tabs.other.rspin = game:GetService("ReplicatedStorage").rEvents.openSoulWheelRemote
+            tabs.other.chances = game:GetService("ReplicatedStorage").shared.catalogs.fortuneWheelChances["Soul Wheel"]
+            
+            while _G.AutoSpinWheel do
+                tabs.other.rspin:InvokeServer("openSoulWheel", tabs.other.chances)
+                task.wait(1)
+            end
+        end)
+    end
 end)
 
 
