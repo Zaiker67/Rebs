@@ -2098,7 +2098,7 @@ tabs.other.antiAFK = true
 tabs.other.antiKnockback = true
 tabs.other.lockPosition = false
 tabs.other.autoLift = false
-tabs.other.autoSpinSoul = false
+tabs.other.autoSpinSoulWheel = false
 tabs.other.eggUsedThisCycle = false
 
 
@@ -2438,22 +2438,22 @@ tabs.other.spinSoulWheel = function()
     tabs.other.spinResult = table.pack(pcall(function()
         -- Change "SoulSpinRemote" and arguments to match the game's actual remote structure
         return game:GetService("ReplicatedStorage").rEvents.SoulSpinRemote:InvokeServer(
-            "spinSoul", 
+            "spinSoulWheel", 
             1 -- Usually represents spin count or type (e.g., Single Spin)
         )
     end))
 end
 
-tabs.other:AddSwitch("Auto Spin Soul", function(bool)
-    _G.AutoSpinSoul = bool
+tabs.other:AddSwitch("Auto Spin Soul Wheel", function(bool)
+    _G.AutoSpinSoulWheel = bool
     
     if bool then
         task.spawn(function()
             local rspin = game:GetService("ReplicatedStorage").rEvents:WaitForChild("SoulSpinRemote")
             
-            while _G.AutoSpinSoul do
+            while _G.AutoSpinSoulWheel do
                 pcall(function()
-                    rspin:InvokeServer("spinSoul", 1)
+                    rspin:InvokeServer("spinSoulWheel", 1)
                 end)
                 task.wait(1) -- Adjust delay to prevent rate-limiting/kicking
             end
