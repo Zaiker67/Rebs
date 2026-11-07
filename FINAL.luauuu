@@ -1877,185 +1877,6 @@ tabs.boss.AutoFarmSwitch = tabs.boss:AddSwitch("Auto Kill Boss", function(state)
 	end, tabs.boss.runtime.generation)
 end)
 
-tabs.boss:AddLabel("")
-
-tabs.boss:AddLabel("Halloween Boss Killing:")
-tabs.boss.Halloween = {
-	runtime = {},
-	BossLabelPrefix = "Halloween Boss: ",
-	StatusLabel = tabs.boss:AddLabel("Status: Waiting for Halloween Boss"),
-	BossLabel = tabs.boss:AddLabel("Halloween Boss: None"),
-	HealthLabel = tabs.boss:AddLabel("Health: 0 / 0"),
-	NextBossLabel = tabs.boss:AddLabel("Next Halloween Boss: Waiting for spawn"),
-	Data = {
-		Running = false,
-		Generation = 0,
-		Phase = "Waiting",
-		PunchInterval = 0.3,
-		LastPunch = 0,
-		AttackSequence = nil,
-		EvadeUntil = 0,
-		EvadeDistance = 230,
-		PunchBehindDistance = 45,
-		StompHealthThreshold = 0.35,
-		DodgeStomps = false,
-		Bosses = {
-			GrimReaper = "Grim Reaper",
-			FrankenBrute = "Frankenbrute",
-			PumpkinTitan = "Pumpkin Titan",
-			ScarecrowColossus = "Scarecrow Colossus"
-		},
-		BossOrder = {"GrimReaper", "FrankenBrute", "PumpkinTitan", "ScarecrowColossus"},
-		BossByDisplayName = {},
-		SelectedBosses = {},
-		Target = nil
-	}
-}
-
-tabs.boss.Halloween.getBossDisplayName = function(model)
-	return tabs.boss.Halloween.Data.Bosses[model:GetAttribute("BossId") or model.Name] or model.Name
-end
-
-tabs.boss.Halloween.getBossHealth = function(health, model)
-	return tonumber(model:GetAttribute("Health")) or 0
-end
-
-tabs.boss.Halloween.getBossMaxHealth = function(maxHealth, model)
-	return tonumber(model:GetAttribute("MaxHealth")) or 0
-end
-
-tabs.boss.Halloween.SelectedBossesLabel = tabs.boss:AddLabel("Targeted Halloween Bosses: All")
-tabs.boss.Halloween.updateSelectedBossesLabel = function(selectedNames)
-	selectedNames = {}
-	for _, bossId in ipairs(tabs.boss.Halloween.Data.BossOrder) do
-		if tabs.boss.Halloween.Data.SelectedBosses[bossId] then
-			table.insert(selectedNames, tabs.boss.Halloween.Data.Bosses[bossId])
-		end
-	end
-	tabs.boss.Halloween.SelectedBossesLabel.Text = "Targeted Halloween Bosses: "
-		.. (#selectedNames > 0 and table.concat(selectedNames, ", ") or "None")
-end
-
-tabs.boss.Halloween.BossDropdown = tabs.boss:AddDropdown("Target specific Halloween Bosses", function(displayName, bossId)
-	bossId = tabs.boss.Halloween.Data.BossByDisplayName[displayName]
-	if not bossId then return end
-	tabs.boss.Halloween.Data.SelectedBosses[bossId] = not tabs.boss.Halloween.Data.SelectedBosses[bossId]
-	tabs.boss.Halloween.updateSelectedBossesLabel()
-end)
-for _, bossId in ipairs(tabs.boss.Halloween.Data.BossOrder) do
-	tabs.boss.Halloween.Data.BossByDisplayName[tabs.boss.Halloween.Data.Bosses[bossId]] = bossId
-	tabs.boss.Halloween.Data.SelectedBosses[bossId] = true
-	tabs.boss.Halloween.BossDropdown:Add(tabs.boss.Halloween.Data.Bosses[bossId])
-end
-tabs.boss.Halloween.updateSelectedBossesLabel()
-
-tabs.boss.Halloween.shouldFarmBoss = function(model)
-	return tabs.boss.Halloween.Data.SelectedBosses[model:GetAttribute("BossId") or model.Name] == true
-end
-
-tabs.boss.Halloween.findActiveBoss = function(selectedOnly, model, hitbox, candidateHitbox, character, root, distance, closestDistance)
-	character = lp.player.Character
-	root = character and character:FindFirstChild("HumanoidRootPart")
-	closestDistance = math.huge
-	for _, candidate in ipairs(services.collectionservice:GetTagged("HalloweenBoss")) do
-		if candidate:IsA("Model") and candidate:IsDescendantOf(workspace)
-			and tabs.boss.Halloween.getBossHealth(nil, candidate) > 0
-			and (not selectedOnly or tabs.boss.Halloween.shouldFarmBoss(candidate)) then
-			candidateHitbox = candidate:FindFirstChild("BossDamageHitbox", true)
-				or candidate.PrimaryPart or candidate:FindFirstChild("HumanoidRootPart")
-			if candidateHitbox and candidateHitbox:IsA("BasePart") then
-				if selectedOnly and candidate == tabs.boss.Halloween.Data.Target then
-					return candidate, nil, nil, candidateHitbox
-				end
-				distance = root and (root.Position - candidateHitbox.Position).Magnitude or 0
-				if not model or distance < closestDistance then
-					model, hitbox, closestDistance = candidate, candidateHitbox, distance
-				end
-			end
-		end
-	end
-	return model, nil, nil, hitbox
-end
-
-task.spawn(function(model)
-	while true do
-		model = tabs.boss.Halloween.Data.Target
-		if not model or not model.Parent or tabs.boss.Halloween.getBossHealth(nil, model) <= 0 then
-			model = tabs.boss.Halloween.findActiveBoss()
-		end
-		if model then
-			tabs.boss.Halloween.BossLabel.Text = "Halloween Boss: " .. tabs.boss.Halloween.getBossDisplayName(model)
-			tabs.boss.Halloween.HealthLabel.Text = "Health: " .. formatCurrentStat(tabs.boss.Halloween.getBossHealth(nil, model))
-				.. " / " .. formatCurrentStat(tabs.boss.Halloween.getBossMaxHealth(nil, model))
-			tabs.boss.Halloween.NextBossLabel.Text = "Next Halloween Boss: Current boss active"
-		else
-			tabs.boss.Halloween.BossLabel.Text = "Halloween Boss: None"
-			tabs.boss.Halloween.HealthLabel.Text = "Health: 0 / 0"
-			tabs.boss.Halloween.NextBossLabel.Text = "Next Halloween Boss: Waiting for spawn"
-		end
-		task.wait(0.25)
-	end
-end)
-
-tabs.boss.Halloween.AutoFarmSwitch = tabs.boss:AddSwitch("Auto Kill Halloween Boss", function(state)
-	if state and tabs.boss.Data.Running then tabs.boss.AutoFarmSwitch:Set(false) end
-	tabs.boss.Halloween.Data.Running = state
-	tabs.boss.Halloween.Data.Generation += 1
-	if not state then
-		tabs.boss.Halloween.Data.Preparation = nil
-		tabs.boss.Halloween.Data.Target = nil
-		tabs.boss.Halloween.Data.Phase = "Waiting"
-		tabs.boss.Halloween.StatusLabel.Text = "Status: Disabled"
-		tabs.boss.resumeTraining()
-		return
-	end
-
-	task.spawn(function(generation, wasFighting, model, health, maxHealth, hitbox)
-		while tabs.boss.Halloween.Data.Running and tabs.boss.Halloween.Data.Generation == generation do
-			pcall(function()
-				model, health, maxHealth, hitbox = tabs.boss.Halloween.findActiveBoss(true)
-				if model then
-					if wasFighting and tabs.boss.needsRetraining(tabs.boss.Halloween) then wasFighting = false end
-					if not wasFighting then
-						if not tabs.boss.prepareForBoss(tabs.boss.Halloween) then return end
-						wasFighting = true
-						tabs.boss.pauseTraining()
-					end
-					if not tabs.boss.Halloween.Data.Running or tabs.boss.Halloween.Data.Generation ~= generation then return end
-					if tabs.boss.needsRetraining(tabs.boss.Halloween) then return end
-					if tabs.boss.Halloween.Data.Target ~= model then
-						tabs.boss.Halloween.Data.Target = model
-						tabs.boss.Halloween.Data.AttackSequence = nil
-						tabs.boss.Halloween.Data.EvadeUntil = 0
-						tabs.boss.Halloween.Data.DodgeStomps = false
-					end
-					tabs.boss.Halloween.Data.Phase = "Fighting"
-					if lp.player.Character
-						and lp.player.Character:FindFirstChildOfClass("Humanoid")
-						and lp.player.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
-						tabs.boss.Halloween.StatusLabel.Text = "Status: Fighting"
-						tabs.boss.attack(tabs.boss.Halloween, model, health, maxHealth, hitbox)
-					else
-						tabs.boss.Halloween.StatusLabel.Text = "Status: Waiting for Respawn"
-					end
-				else
-					tabs.boss.Halloween.Data.Target = nil
-					tabs.boss.Halloween.Data.Phase = "Waiting"
-					if tabs.boss.Halloween.Data.Preparation then
-						tabs.boss.Halloween.Data.Preparation = nil
-						tabs.boss.resumeTraining()
-					elseif wasFighting then
-						tabs.boss.resumeTraining()
-					end
-					wasFighting = false
-					tabs.boss.Halloween.StatusLabel.Text = "Status: Waiting for Halloween Boss"
-				end
-			end)
-			task.wait(model and 0.03 or 0.25)
-		end
-	end, tabs.boss.Halloween.Data.Generation)
-end)
-
 tabs.boss:AddLabel("~~~~~~~~~~")
 
 tabs.boss:AddLabel("Boss Killing V2")
@@ -2432,33 +2253,6 @@ tabs.other:AddSwitch("Gamepass Auto Lift", function(state)
             autoLiftRemote:FireServer(autoLiftEnabled)
         end
     end)
-end)
-
-tabs.other.spinSoulWheel = function()
-    tabs.other.spinResult = table.pack(pcall(function()
-        -- Change "SoulSpinRemote" and arguments to match the game's actual remote structure
-        return game:GetService("ReplicatedStorage").rEvents.SoulSpinRemote:InvokeServer(
-            "spinSoulWheel", 
-            1 -- Usually represents spin count or type (e.g., Single Spin)
-        )
-    end))
-end
-
-tabs.other:AddSwitch("Auto Spin Soul Wheel", function(bool)
-    _G.AutoSpinSoulWheel = bool
-    
-    if bool then
-        task.spawn(function()
-            local rspin = game:GetService("ReplicatedStorage").rEvents:WaitForChild("SoulSpinRemote")
-            
-            while _G.AutoSpinSoulWheel do
-                pcall(function()
-                    rspin:InvokeServer("spinSoulWheel", 1)
-                end)
-                task.wait(1) -- Adjust delay to prevent rate-limiting/kicking
-            end
-        end)
-    end
 end)
 
 
@@ -2865,7 +2659,7 @@ tabs.other3.tpE = function(position)
     services.virtualinputmanager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
-tabs.other3:AddLabel("All Machines Function are Working!")
+tabs.other3:AddLabel("All Machines Functions are Working!")
 
 tabs.other3:AddLabel("——————————")
 
@@ -2889,26 +2683,26 @@ end)
 
 tabs.other3:AddLabel("~~~~~~~~~~")
 
-tabs.other3:AddLabel("Hallowed Machines")
+tabs.other3:AddLabel("Zero Degrees Machine")
 
-tabs.other3:AddButton("Hallowed Bar Lift",function()
-    tabs.other3.tpE(Vector3.new(5432.12, 85.35, 5715.02))
+tabs.other3:AddButton("Zero Degrees Bench 1",function()
+    tabs.other3.tpE(Vector3.new(4899.15, 100.37, 10144.50))
 end)
 
-tabs.other3:AddButton("Hallowed Squat",function()
-    tabs.other3.tpE(Vector3.new(4812.03, 85.35, 5839.05))
+tabs.other3:AddButton("Zero Degrees Boulder 1",function()
+    tabs.other3.tpE(Vector3.new(5338.59, 43.50, 10909.65))
 end)
 
-tabs.other3:AddButton("Hallowed Bench Press",function()
-    tabs.other3.tpE(Vector3.new(5314.69, 142.13, 6807.71))
+tabs.other3:AddButton("Zero Degrees Bar Lift 1",function()
+    tabs.other3.tpE(Vector3.new(5374.87, 43.50, 10321.76))
 end)
 
-tabs.other3:AddButton("Hallowed Pullups",function()
-    tabs.other3.tpE(Vector3.new(4808.10, 102.34, 6857.22))
+tabs.other3:AddButton("Zero Degrees Squat 1",function()
+    tabs.other3.tpE(Vector3.new(-5304.28, 43.50, 11121.20))
 end)
 
-tabs.other3:AddButton("Hallowed Boulder",function()
-    tabs.other3.tpE(Vector3.new(5292.21, 86.50, 5680.97))
+tabs.other3:AddButton("Zero Degrees Squat 2",function()
+    tabs.other3.tpE(Vector3.new(-5099.28, 43.50, 11096.20))
 end)
 
 tabs.info:Show()
