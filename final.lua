@@ -141,7 +141,7 @@ services.touchParts = function(part, hand, state)
 end
 
 local library = loadstring(game:HttpGet("https://codeberg.org/PRUEBACUENTAZEUS/PaidLib/raw/branch/main/M14Library.lua", true))()
-local silence = library:AddWindow("M1887 | Paid Script - Pack & Boss Farm", {
+local silence = library:AddWindow("M1887 | Paid Version - Pack & Boss Farm", {
     title_bar = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(20, 20, 20), Color3.fromRGB(128, 128, 128)},
     title_bar_transparency = 0.2,
     background = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(80, 80, 80), Color3.fromRGB(60, 60, 60)},
@@ -2686,15 +2686,15 @@ tabs.other3:AddLabel("~~~~~~~~~~")
 tabs.other3:AddLabel("Zero Degrees Machine")
 
 tabs.other3:AddButton("Zero Degrees Bench 1",function()
-    tabs.other3.tpE(Vector3.new(4899.15, 100.37, 10144.50))
+    tabs.other3.tpE(Vector3.new(-4899.15, 100.37, 10144.50))
 end)
 
 tabs.other3:AddButton("Zero Degrees Boulder 1",function()
-    tabs.other3.tpE(Vector3.new(5338.59, 43.50, 10909.65))
+    tabs.other3.tpE(Vector3.new(-5338.59, 43.50, 10909.65))
 end)
 
 tabs.other3:AddButton("Zero Degrees Bar Lift 1",function()
-    tabs.other3.tpE(Vector3.new(5374.87, 43.50, 10321.76))
+    tabs.other3.tpE(Vector3.new(-5374.87, 43.50, 10321.76))
 end)
 
 tabs.other3:AddButton("Zero Degrees Squat 1",function()
@@ -2712,11 +2712,11 @@ local function createSeparator()
 end
 
 -- [[ HEADER SECTION ]]
-tabs.info:AddLabel("Welcome to M1887 | Paid Script").TextSize = 20
+tabs.info:AddLabel("Welcome to M1887 | Paid Version").TextSize = 20
 createSeparator()
 
 -- [[ DEV CREDITS WITH RAINBOW EFFECT ]]
-local devLabel = tabs.info:AddLabel("Developer: BossKenzou")
+local devLabel = tabs.info:AddLabel("Developer 👑: BossKenzou")
 devLabel.TextSize = 22
 
 -- Rainbow Script for Owner Label
@@ -2728,7 +2728,7 @@ task.spawn(function()
 end)
 
 -- [[ DEV CREDITS WITH RAINBOW EFFECT ]]
-local devLabel = tabs.info:AddLabel("Tester: XxSOE_GaGAxX")
+local devLabel = tabs.info:AddLabel("Tester 👌: XxSOE_GaGAxX")
 devLabel.TextSize = 20
 
 -- Rainbow Script for Owner Label
