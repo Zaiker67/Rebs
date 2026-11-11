@@ -2492,20 +2492,6 @@ end)
 
 tabs.other2:AddLabel("~~~~~~~~~~")
 
-tabs.other2:AddLabel("Equip Health & Damage Packs")
-
-tabs.other2:AddButton("Mighty Monster", function()
-    unequipPets()
-    equipPetsByName("Mighty Monster")
-end)
-
-tabs.other2:AddButton("Wild Wizard", function()
-    unequipPets()
-    equipPetsByName("Wild Wizard")
-end)
-
-tabs.other2:AddLabel("~~~~~~~~~~")
-
 tabs.other2:AddLabel("Pack Spam")
 
 local running = false
@@ -2637,6 +2623,141 @@ end)
 tabs.other2:AddButton("Stop Pack Spam", function()
     running = false
     print("[PackSpam]: Stopped")
+end)
+
+tabs.other2:AddLabel("~~~~~~~~~~")
+
+tabs.other2:AddLabel("Boss Pets Spam")
+
+local running = false
+
+local function getRemote()
+    local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
+    if not rEvents then return end
+    return rEvents:FindFirstChild("equipPetEvent")
+end
+
+local function unequipAll(remote, petsFolder)
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                remote:FireServer("unequipPet", pet)
+            end
+        end
+    end
+end
+
+local function getPets(folder, name)
+    local t = {}
+    for _, pet in pairs(folder:GetChildren()) do
+        if pet.Name == name then
+            table.insert(t, pet)
+        end
+    end
+    return t
+end
+
+-- List of boss pets to cycle through
+local bossPets = {
+    "Epic Boss Pet",
+    "Mythic Boss Pet",
+    "Legendary Boss Pet",
+    "Rainbow Boss Pet"
+}
+
+tabs.other2:AddButton("Smart Boss Spam", function()
+    if running then return end
+    running = true
+    task.spawn(function()
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not petsFolder then
+            warn("petsFolder not found")
+            running = false
+            return
+        end
+        local unique = petsFolder:FindFirstChild("Unique")
+        if not unique then
+            warn("Unique folder not found")
+            running = false
+            return
+        end
+        local remote = getRemote()
+        if not remote then
+            warn("equipPetEvent not found")
+            running = false
+            return
+        end
+
+        while running do
+            for _, petName in ipairs(bossPets) do
+                if not running then break end
+                
+                unequipAll(remote, petsFolder)
+                task.wait(0.001)
+                
+                local foundPets = getPets(unique, petName)
+                for i = 1, math.min(8, #foundPets) do
+                    if not running then return end
+                    remote:FireServer("equipPet", foundPets[i])
+                    task.wait(0.001)
+                end
+                task.wait(0.001)
+            end
+        end
+    end)
+end)
+
+tabs.other2:AddButton("Stop Spamming", function()
+    running = false
+    print("[BossSpam]: Stopped")
+end)
+
+-- Additional pack spam variants updated to use the boss pets list
+tabs.other2:AddButton("Start Boss Spam", function()
+    if running then return end
+    running = true
+    task.spawn(function()
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not petsFolder then
+            warn("petsFolder not found")
+            running = false
+            return
+        end
+        local unique = petsFolder:FindFirstChild("Unique")
+        if not unique then
+            warn("Unique folder not found")
+            running = false
+            return
+        end
+        local remote = getRemote()
+        if not remote then
+            warn("equipPetEvent not found")
+            running = false
+            return
+        end
+
+        while running do
+            for _, petName in ipairs(bossPets) do
+                if not running then break end
+                
+                unequipAll(remote, petsFolder)
+                task.wait(0.001)
+                
+                local foundPets = getPets(unique, petName)
+                for i = 1, math.min(8, #foundPets) do
+                    if not running then return end
+                    remote:FireServer("equipPet", foundPets[i])
+                    task.wait(0.001)
+                end
+                task.wait(0.001)
+            end
+        end
+    end)
+end)
+
+tabs.other2:AddButton("Stop Boss Spam", function()
+    running = false
+    print("[BossSpam]: Stopped")
 end)
 
 
