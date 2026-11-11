@@ -2504,6 +2504,141 @@ tabs.other2:AddButton("Wild Wizard", function()
     equipPetsByName("Wild Wizard")
 end)
 
+tabs.other2:AddLabel("~~~~~~~~~~")
+
+tabs.other2:AddLabel("Pack Spam")
+
+local running = false
+
+local function getRemote()
+    local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
+    if not rEvents then return end
+    return rEvents:FindFirstChild("equipPetEvent")
+end
+
+local function unequipAll(remote, petsFolder)
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                remote:FireServer("unequipPet", pet)
+            end
+        end
+    end
+end
+
+local function getPets(folder, name)
+    local t = {}
+    for _, pet in pairs(folder:GetChildren()) do
+        if pet.Name == name then
+            table.insert(t, pet)
+        end
+    end
+    return t
+end
+
+tabs.other2:AddButton("Smart Pack Spam", function()
+    if running then return end
+    running = true
+    task.spawn(function()
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not petsFolder then
+            warn("petsFolder not found")
+            running = false
+            return
+        end
+        local unique = petsFolder:FindFirstChild("Unique")
+        if not unique then
+            warn("Unique folder not found")
+            running = false
+            return
+        end
+        local remote = getRemote()
+        if not remote then
+            warn("equipPetEvent not found")
+            running = false
+            return
+        end
+
+        while running do
+            unequipAll(remote, petsFolder)
+            task.wait(0.001)
+            local mighty = getPets(unique, "Mighty Monster")
+            for i = 1, math.min(8, #mighty) do
+                if not running then return end
+                remote:FireServer("equipPet", mighty[i])
+                task.wait(0.001)
+            end
+            task.wait(0.001)
+            unequipAll(remote, petsFolder)
+            task.wait(0.001)
+            local wizard = getPets(unique, "Wild Wizard")
+            for i = 1, math.min(8, #wizard) do
+                if not running then return end
+                remote:FireServer("equipPet", wizard[i])
+                task.wait(0.001)
+            end
+            task.wait(0.001)
+        end
+    end)
+end)
+
+tabs.other2:AddButton("Stop Spaming", function()
+    running = false
+    print("[PackSpam]: Stopped")
+end)
+
+-- Additional pack spam variants (kept as in original)
+tabs.other2:AddButton("Start Pack Spam", function()
+    if running then return end
+    running = true
+    task.spawn(function()
+        local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+        if not petsFolder then
+            warn("petsFolder not found")
+            running = false
+            return
+        end
+        local unique = petsFolder:FindFirstChild("Unique")
+        if not unique then
+            warn("Unique folder not found")
+            running = false
+            return
+        end
+        local remote = getRemote()
+        if not remote then
+            warn("equipPetEvent not found")
+            running = false
+            return
+        end
+
+        while running do
+            unequipAll(remote, petsFolder)
+            task.wait(0.001)
+            local mighty = getPets(unique, "Mighty Monster")
+            for i = 1, math.min(8, #mighty) do
+                if not running then return end
+                remote:FireServer("equipPet", mighty[i])
+                task.wait(0.001)
+            end
+            task.wait(0.001)
+            unequipAll(remote, petsFolder)
+            task.wait(0)
+            local wizard = getPets(unique, "Wild Wizard")
+            for i = 1, math.min(0, #wizard) do -- original had min(0, ...) which does nothing
+                if not running then return end
+                remote:FireServer("equipPet", wizard[i])
+                task.wait(0)
+            end
+            task.wait(0)
+        end
+    end)
+end)
+
+tabs.other2:AddButton("Stop Pack Spam", function()
+    running = false
+    print("[PackSpam]: Stopped")
+end)
+
 
 tabs.other2:AddLabel("~~~~~~~~~~")
 
