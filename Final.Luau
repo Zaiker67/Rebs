@@ -1890,27 +1890,6 @@ end)
 
 tabs.other:AddLabel("--- Misc 1 ---")
 
-function unequipPets()
-    for _, folder in pairs(lp.player.petsFolder:GetChildren()) do
-        if folder:IsA("Folder") then
-            for _, pet in pairs(folder:GetChildren()) do
-                services.replicatedstorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-            end
-        end
-    end
-    task.wait(0.1)
-end
-
-function equipPetsByName(name)
-    unequipPets()
-    task.wait(0.01)
-    for _, pet in pairs(lp.player.petsFolder.Unique:GetChildren()) do
-        if pet.Name == name then
-            services.replicatedstorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-        end
-    end
-end
-
 tabs.other.eggsowned = tabs.other:AddLabel("Protein Eggs: 0")
 tabs.other.eggsowned.TextSize = 14
 
@@ -2470,11 +2449,6 @@ for _, option in ipairs(timeOptions) do
     timeDropdown:Add(option)
 end
 
-
-tabs.other:AddButton("Equip Best Rep Pets", function()
-    equipBestFarmingPets()
-end)
-
 -- Other2 Tab
 
 function unequipPets()
@@ -2504,65 +2478,65 @@ function equipPetsByName(name)
     end
 end
 
-tabs.other2:AddLabel("Equip Boss Pets")
+tabs.other2:AddLabel("Boss Pets Auto Equip")
 
-tabs.other2:AddButton("Common Boss Pet", function()
+tabs.other2:AddButton("Equip Common Boss Pet", function()
     unequipPets()
     equipPetsByName("Common Boss Pet")
 end)
 
-tabs.other2:AddButton("Rare Boss Pet", function()
+tabs.other2:AddButton("Equip Rare Boss Pet", function()
     unequipPets()
     equipPetsByName("Rare Boss Pet")
 end)
 
-tabs.other2:AddButton("Epic Boss Pet", function()
+tabs.other2:AddButton("Equip Epic Boss Pet", function()
     unequipPets()
     equipPetsByName("Epic Boss Pet")
 end)
 
-tabs.other2:AddButton("Legendary Boss Pet", function()
+tabs.other2:AddButton("Equip Legendary Boss Pet", function()
     unequipPets()
     equipPetsByName("Legendary Boss Pet")
 end)
 
-tabs.other2:AddButton("Mythic Boss Pet", function()
+tabs.other2:AddButton("Equip Mythic Boss Pet", function()
     unequipPets()
     equipPetsByName("Mythic Boss Pet")
 end)
 
-tabs.other2:AddButton("Rainbow Boss Pet", function()
+tabs.other2:AddButton("Equip Rainbow Boss Pet", function()
     unequipPets()
     equipPetsByName("Rainbow Boss Pet")
 end)
 
 tabs.other2:AddLabel("~~~~~~~~~~")
 
-tabs.other2:AddLabel("Equip Pack Pets")
+tabs.other2:AddLabel("Pack Pets Auto Equip")
 
-tabs.other2:AddButton("Swift Samurai", function()
+tabs.other2:AddButton("Equip Swift Samurai", function()
     unequipPets()
     equipPetsByName("Swift Samurai")
 end)
 
-tabs.other2:AddButton("Tribal Overlord", function()
+tabs.other2:AddButton("Equip Tribal Overlord", function()
     unequipPets()
     equipPetsByName("Tribal Overlord")
 end)
 
-tabs.other2:AddButton("Omega Overlord", function()
+tabs.other2:AddButton("Equip Omega Overlord", function()
     unequipPets()
     equipPetsByName("Omega Overlord")
 end)
 
-tabs.other2:AddButton("Titanium Hydra", function()
+tabs.other2:AddButton("Equip Titanium Hydra", function()
     unequipPets()
     equipPetsByName("Titanium Hydra")
 end)
 
 tabs.other2:AddLabel("~~~~~~~~~~")
 
-tabs.other2:AddLabel("Pack Spam")
+tabs.other2:AddLabel("Pack Spamming")
 
 local running = false
 
@@ -2638,7 +2612,7 @@ tabs.other2:AddButton("Smart Pack Spam", function()
     end)
 end)
 
-tabs.other2:AddButton("Stop Spaming", function()
+tabs.other2:AddButton("Stop Spamming", function()
     running = false
     print("[PackSpam]: Stopped")
 end)
@@ -3042,7 +3016,7 @@ tabs.info:AddLabel("Welcome to M1887 | Paid Version").TextSize = 20
 createSeparator()
 
 -- [[ DEV CREDITS WITH RAINBOW EFFECT ]]
-local devLabel = tabs.info:AddLabel("Developer 👑: BossKenzou")
+local devLabel = tabs.info:AddLabel("Developer: BossKenzou")
 devLabel.TextSize = 22
 
 -- Rainbow Script for Owner Label
@@ -3054,7 +3028,7 @@ task.spawn(function()
 end)
 
 -- [[ DEV CREDITS WITH RAINBOW EFFECT ]]
-local devLabel = tabs.info:AddLabel("Tester 👌: XxSOE_GaGAxX")
+local devLabel = tabs.info:AddLabel("Tester: XxSOE_GaGAxX")
 devLabel.TextSize = 20
 
 -- Rainbow Script for Owner Label
@@ -3097,7 +3071,7 @@ end)
 
 -- [[ STATUS SECTION ]]
 tabs.info:AddLabel("💠 Script Status: [ ONLINE ]")
-tabs.info:AddLabel("🚀 PAID VERSION: 1.3")
+tabs.info:AddLabel("🚀 PAID VERSION: 1.4")
 createSeparator()
 
 -- [[ FOOTER SECTION - THE "ON TOP" ANIMATION ]]
