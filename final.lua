@@ -1888,6 +1888,8 @@ end)
 
 -- Other Tab
 
+tabs.other:AddLabel("--- Misc 1 ---")
+
 function unequipPets()
     for _, folder in pairs(lp.player.petsFolder:GetChildren()) do
         if folder:IsA("Folder") then
@@ -2036,6 +2038,8 @@ tabs.other:AddSwitch("Spin Fortune Wheel", function(bool)
         end)
     end
 end)
+
+tabs.other:AddLabel("--- Misc 2 ---")
 
 local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
@@ -2254,6 +2258,8 @@ tabs.other:AddSwitch("Gamepass Auto Lift", function(state)
         end
     end)
 end)
+
+tabs.other:AddLabel("--- Misc 3 ---")
 
 
 tabs.other.boostItemList = {
