@@ -1921,7 +1921,7 @@ tabs.other.antiAFK = true
 tabs.other.antiKnockback = true
 tabs.other.lockPosition = false
 tabs.other.autoLift = false
-tabs.other.autoSpinSoulWheel = false
+tabs.other.autoTimeChanger = false
 tabs.other.eggUsedThisCycle = false
 
 
@@ -2405,6 +2405,8 @@ lp.player.CharacterAdded:Connect(function(character, head)
         tabs.other.applyNameVisibility()
     end
 end)
+
+local lighting = game:GetService("Lighting")
 
 -- Tabla para registrar los tiempos disponibles
 local timeOptions = {
