@@ -147,7 +147,7 @@ local silence = library:AddWindow("M1887 | Paid Version - Pack & Boss Farm", {
     background = {Color3.fromRGB(0, 0, 0), Color3.fromRGB(80, 80, 80), Color3.fromRGB(60, 60, 60)},
     background_transparency = 0.1,
     main_color = Color3.fromRGB(128, 128, 128),
-    min_size = Vector2.new(500, 560),
+    min_size = Vector2.new(500, 500),
     can_resize = false
 })
 
@@ -155,19 +155,17 @@ local tabs = {
     rebirths = silence:AddTab("Fast Rebirth"),
     strength = silence:AddTab("Fast FarmV1 (Boss Pet)"),
     strength2 = silence:AddTab("Fast FarmV2 (Packs)"),
-    boss = silence:AddTab("Kill Boss"),
+    boss = silence:AddTab("Boss Killing"),
     other = silence:AddTab("MiscV1"),
 	other2 = silence:AddTab("MiscV2"),
-	other3 = silence:AddTab("Machines (Miscv3)"),
+	other3 = silence:AddTab("Machines"),
     info = silence:AddTab("Info")
 }
 
-tabs.other:Show()
-
 tabs.other.RedactConfigPath = "Silence/MuscleLegendsFarmingConfig.json"
 tabs.other.RedactConfig = {
-    RedactName = true,
-    RedactStats = true,
+    RedactName = false,
+    RedactStats = false,
 }
 
 tabs.other.loadRedactConfig = function()
