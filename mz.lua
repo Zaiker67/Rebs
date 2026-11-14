@@ -2957,10 +2957,6 @@ tabs.other3.tpE = function(position)
     services.virtualinputmanager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end
 
-tabs.other3:AddLabel("All Machines Functions are Working!")
-
-tabs.other3:AddLabel("——————————")
-
 tabs.other3:AddLabel("Industrial Machines")
 
 tabs.other3:AddButton("Industrial Bar Lift",function()
@@ -2981,7 +2977,7 @@ end)
 
 tabs.other3:AddLabel("~~~~~~~~~~")
 
-tabs.other3:AddLabel("Zero Degrees Machine")
+tabs.other3:AddLabel("Zero Degrees Machines")
 
 tabs.other3:AddButton("Zero Degrees Bench 1",function()
     tabs.other3.tpE(Vector3.new(-4899.15, 100.37, 10144.50))
@@ -3001,6 +2997,46 @@ end)
 
 tabs.other3:AddButton("Zero Degrees Squat 2",function()
     tabs.other3.tpE(Vector3.new(-5099.28, 43.50, 11096.20))
+end)
+
+tabs.other3:AddLabel("~~~~~~~~~~")
+
+tabs.other3:AddLabel("Alien Machines")
+
+tabs.other3:AddButton("Alien Bench Press 1",function()
+    tabs.other3.tpE(Vector3.new(-2216.66, 84.24, -10759.05))
+end)
+
+tabs.other3:AddButton("Alien Bench Press 2",function()
+    tabs.other3.tpE(Vector3.new(-2166.71, 84.23, -10641.12))
+end)
+
+tabs.other3:AddButton("Alien Bench Press 3",function()
+    tabs.other3.tpE(Vector3.new(-2045.60, 84.23, -10617.69))
+end)
+
+tabs.other3:AddButton("Alien Bar Lift 1",function()
+    tabs.other3.tpE(Vector3.new(-2216.65, 52.90, -11220.49))
+end)
+
+tabs.other3:AddButton("Alien Bar Lift 2",function()
+    tabs.other3.tpE(Vector3.new(-2154.71, 52.90, -11332.91))
+end)
+
+tabs.other3:AddButton("Alien Boulder",function()
+    tabs.other3.tpE(Vector3.new(-2061.32, 52.89, -11314.26))
+end)
+
+tabs.other3:AddButton("Alien Squat 1",function()
+    tabs.other3.tpE(Vector3.new(-1603.34, 52.88, -11327.00))
+end)
+
+tabs.other3:AddButton("Alien Squat 2",function()
+    tabs.other3.tpE(Vector3.new(-1511.64, 52.88, -11282.32))
+end)
+
+tabs.other3:AddButton("Alien Squat 3",function()
+    tabs.other3.tpE(Vector3.new(-1490.97, 52.87, -11188.71))
 end)
 
 tabs.info:Show()
