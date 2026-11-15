@@ -1426,6 +1426,8 @@ tabs.boss.AutoFarmSwitch = tabs.boss:AddSwitch("Auto Farm Boss", function(state)
 	end, tabs.boss.runtime.generation)
 end)
 
+tabs.boss:AddLabel("")
+
 tabs.boss:AddLabel("Alien Boss Farming:")
 tabs.boss.Alien = {
 	runtime = {},
