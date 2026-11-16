@@ -1877,6 +1877,332 @@ end)
 
 tabs.boss:AddLabel("~~~~~~~~~~")
 
+tabs.boss:AddLabel("Alien Boss Farming:")
+tabs.boss.Alien = {
+	runtime = {},
+	BossLabelPrefix = "Alien Boss: ",
+	StatusLabel = tabs.boss:AddLabel("Status: Waiting for Alien Boss"),
+	BossLabel = tabs.boss:AddLabel("Alien Boss: None"),
+	HealthLabel = tabs.boss:AddLabel("Health: 0 / 0"),
+	NextBossLabel = tabs.boss:AddLabel("Next Alien Boss: Waiting for spawn"),
+	Data = {
+		Running = false,
+		Generation = 0,
+		Phase = "Waiting",
+		PunchInterval = 0.3,
+		LastPunch = 0,
+		AttackSequence = nil,
+		EvadeUntil = 0,
+		EvadeDistance = 230,
+		PunchBehindDistance = 45,
+		StompHealthThreshold = 0.35,
+		DodgeStomps = false,
+		Bosses = {
+			Alien = "Alien",
+			AlienBoss = "Alien",
+			SpaceAlien = "Alien"
+		},
+		BossOrder = {"Alien"},
+		BossByDisplayName = {},
+		SelectedBosses = {},
+		Target = nil
+	}
+}
+
+tabs.boss.Alien.getBossDisplayName = function(model)
+	local bossId = model:GetAttribute("BossId") or model.Name
+	return tabs.boss.Alien.Data.Bosses[bossId] or model.Name
+end
+
+tabs.boss.Alien.getBossHealth = function(_, model)
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local attrHealth = model:GetAttribute("Health") or model:GetAttribute("HP")
+	if attrHealth then return tonumber(attrHealth) or 0 end
+	if humanoid then return humanoid.Health end
+	return 0
+end
+
+tabs.boss.Alien.getBossMaxHealth = function(_, model)
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local attrMax = model:GetAttribute("MaxHealth") or model:GetAttribute("MaxHP")
+	if attrMax then return tonumber(attrMax) or 100 end
+	if humanoid then return humanoid.MaxHealth end
+	return 100
+end
+
+formatCurrentStat = formatCurrentStat or function(v) return tostring(v) end
+
+tabs.boss.Alien.SelectedBossesLabel = tabs.boss:AddLabel("Targeted Alien Bosses: All")
+tabs.boss.Alien.updateSelectedBossesLabel = function(selectedNames)
+	selectedNames = {}
+	for _, bossId in ipairs(tabs.boss.Alien.Data.BossOrder) do
+		if tabs.boss.Alien.Data.SelectedBosses[bossId] then
+			table.insert(selectedNames, tabs.boss.Alien.Data.Bosses[bossId])
+		end
+	end
+	tabs.boss.Alien.SelectedBossesLabel.Text = "Targeted Alien Bosses: "
+		.. (#selectedNames > 0 and table.concat(selectedNames, ", ") or "None")
+end
+
+tabs.boss.Alien.BossDropdown = tabs.boss:AddDropdown("Target specific Alien Bosses", function(displayName, bossId)
+	bossId = tabs.boss.Alien.Data.BossByDisplayName[displayName]
+	if not bossId then return end
+	tabs.boss.Alien.Data.SelectedBosses[bossId] = not tabs.boss.Alien.Data.SelectedBosses[bossId]
+	tabs.boss.Alien.updateSelectedBossesLabel()
+end)
+
+for _, bossId in ipairs(tabs.boss.Alien.Data.BossOrder) do
+	tabs.boss.Alien.Data.BossByDisplayName[tabs.boss.Alien.Data.Bosses[bossId]] = bossId
+	tabs.boss.Alien.Data.SelectedBosses[bossId] = true
+	tabs.boss.Alien.BossDropdown:Add(tabs.boss.Alien.Data.Bosses[bossId])
+end
+tabs.boss.Alien.updateSelectedBossesLabel()
+
+tabs.boss.Alien.shouldFarmBoss = function(model)
+	local bossId = model:GetAttribute("BossId") or model.Name
+	if tabs.boss.Alien.Data.SelectedBosses[bossId] == true then return true end
+	if string.find(string.lower(model.Name), "alien") then return true end
+	return false
+end
+
+tabs.boss.Alien.findActiveBoss = function(selectedOnly)
+	local character = lp.player and lp.player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local closestDistance = math.huge
+	local bestModel, bestHitbox
+	
+	local candidates = {}
+	pcall(function()
+		for _, v in ipairs(services.collectionservice:GetTagged("AlienBoss")) do
+			table.insert(candidates, v)
+		end
+		for _, v in ipairs(services.collectionservice:GetTagged("Alien")) do
+			table.insert(candidates, v)
+		end
+	end)
+	
+	if #candidates == 0 then
+		for _, child in ipairs(workspace:GetChildren()) do
+			if child:IsA("Model") and string.find(string.lower(child.Name), "alien") then
+				table.insert(candidates, child)
+			end
+		end
+	end
+
+	for _, candidate in ipairs(candidates) do
+		if candidate:IsA("Model") and candidate:IsDescendantOf(workspace) then
+			local health = tabs.boss.Alien.getBossHealth(nil, candidate)
+			if health > 0 and (not selectedOnly or tabs.boss.Alien.shouldFarmBoss(candidate)) then
+				local candidateHitbox = candidate:FindFirstChild("BossDamageHitbox", true)
+					or candidate:FindFirstChildOfClass("Humanoid") and candidate.PrimaryPart
+					or candidate:FindFirstChild("HumanoidRootPart") or candidate.PrimaryPart
+				
+				if candidateHitbox and candidateHitbox:IsA("BasePart") then
+					local distance = root and (root.Position - candidateHitbox.Position).Magnitude or 0
+					if not bestModel or distance < closestDistance then
+						bestModel, bestHitbox, closestDistance = candidate, candidateHitbox, distance
+					end
+				end
+			end
+		end
+	end
+	return bestModel, nil, nil, bestHitbox
+end
+
+-- NEW: Function to find and collect chests after the boss is defeated
+tabs.boss.Alien.autoCollectChest = function(lastBossPosition)
+	local char = lp.player and lp.player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local startTime = tick()
+	-- Search for chests for up to 5 seconds after boss defeat
+	while tick() - startTime < 5 do
+		local foundChest = nil
+		local shortestDist = 150 -- Maximum range to look for chest from boss death location
+
+		pcall(function()
+			-- Search by typical collection tags or names containing "Chest" / "Reward" / "Drop"
+			local searchPool = {}
+			for _, v in ipairs(services.collectionservice:GetTagged("Chest")) do table.insert(searchPool, v) end
+			for _, v in ipairs(services.collectionservice:GetTagged("Reward")) do table.insert(searchPool, v) end
+			
+			if #searchPool == 0 then
+				for _, obj in ipairs(workspace:GetDescendants()) do
+					if obj:IsA("Model") or obj:IsA("BasePart") then
+						local nameLower = string.lower(obj.Name)
+						if string.find(nameLower, "chest") or string.find(nameLower, "reward") then
+							table.insert(searchPool, obj)
+						end
+					end
+				end
+			end
+
+			for _, item in ipairs(searchPool) do
+				local part = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or (item:IsA("BasePart") and item)
+				if part then
+					local refPos = lastBossPosition or root.Position
+					local dist = (part.Position - refPos).Magnitude
+					if dist < shortestDist then
+						shortestDist = dist
+						foundChest = part
+					end
+				end
+			end
+		end)
+
+		if foundChest then
+			tabs.boss.Alien.StatusLabel.Text = "Status: Collecting Chest"
+			root.CFrame = foundChest.CFrame + Vector3.new(0, 3, 0)
+			
+			-- Interact with ProximityPrompt if available
+			pcall(function()
+				local prompt = foundChest:FindFirstChildWhichIsA("ProximityPrompt", true)
+				if prompt then
+					fireproximityprompt(prompt)
+				end
+			end)
+			
+			task.wait(0.5)
+			break
+		end
+		task.wait(0.2)
+	end
+end
+
+runtime = runtime or {
+	Spawn = function(_, func, ...)
+		task.spawn(func, ...)
+	end
+}
+
+tabs.boss.attack = tabs.boss.attack or function(alienTab, model, health, maxHealth, hitbox)
+	local char = lp.player and lp.player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root or not hitbox then return end
+
+	root.CFrame = hitbox.CFrame * CFrame.new(0, 0, 4)
+
+	local backpack = lp.player:FindFirstChildOfClass("Backpack")
+	local tool = char:FindFirstChildOfClass("Tool")
+	if not tool and backpack then
+		tool = backpack:FindFirstChildOfClass("Tool")
+		if tool then
+			tool.Parent = char
+		end
+	end
+
+	if tool then
+		pcall(function()
+			tool:Activate()
+		end)
+	end
+end
+
+runtime:Spawn(function()
+	while true do
+		local model = tabs.boss.Alien.Data.Target
+		if not model or not model.Parent or tabs.boss.Alien.getBossHealth(nil, model) <= 0 then
+			model = tabs.boss.Alien.findActiveBoss(false)
+		end
+		if model then
+			tabs.boss.Alien.BossLabel.Text = "Alien Boss: " .. tabs.boss.Alien.getBossDisplayName(model)
+			tabs.boss.Alien.HealthLabel.Text = "Health: " .. formatCurrentStat(tabs.boss.Alien.getBossHealth(nil, model))
+				.. " / " .. formatCurrentStat(tabs.boss.Alien.getBossMaxHealth(nil, model))
+			tabs.boss.Alien.NextBossLabel.Text = "Next Alien Boss: Current boss active"
+		else
+			tabs.boss.Alien.BossLabel.Text = "Alien Boss: None"
+			tabs.boss.Alien.HealthLabel.Text = "Health: 0 / 0"
+			tabs.boss.Alien.NextBossLabel.Text = "Next Alien Boss: Waiting for spawn"
+		end
+		task.wait(0.25)
+	end
+end)
+
+tabs.boss.Alien.AutoFarmSwitch = tabs.boss:AddSwitch("Auto Farm Alien Boss", function(state)
+	if state and tabs.boss.Data and tabs.boss.Data.Running then tabs.boss.AutoFarmSwitch:Set(false) end
+	tabs.boss.Alien.Data.Running = state
+	tabs.boss.Alien.Data.Generation += 1
+	if not state then
+		tabs.boss.Alien.Data.Preparation = nil
+		tabs.boss.Alien.Data.Target = nil
+		tabs.boss.Alien.Data.Phase = "Waiting"
+		tabs.boss.Alien.StatusLabel.Text = "Status: Disabled"
+		if tabs.boss.resumeTraining then tabs.boss.resumeTraining() end
+		return
+	end
+
+	runtime:Spawn(function(generation)
+		local wasFighting = false
+		local lastKnownPos = nil
+
+		while tabs.boss.Alien.Data.Running and tabs.boss.Alien.Data.Generation == generation do
+			local success, err = pcall(function()
+				local model, _, _, hitbox = tabs.boss.Alien.findActiveBoss(true)
+				local health = model and tabs.boss.Alien.getBossHealth(nil, model) or 0
+				local maxHealth = model and tabs.boss.Alien.getBossMaxHealth(nil, model) or 100
+
+				if model and health > 0 then
+					if hitbox then lastKnownPos = hitbox.Position end
+					if wasFighting and tabs.boss.needsRetraining and tabs.boss.needsRetraining(tabs.boss.Alien) then wasFighting = false end
+					if not wasFighting then
+						if tabs.boss.prepareForBoss and not tabs.boss.prepareForBoss(tabs.boss.Alien) then return end
+						wasFighting = true
+						if tabs.boss.pauseTraining then tabs.boss.pauseTraining() end
+					end
+					if not tabs.boss.Alien.Data.Running or tabs.boss.Alien.Data.Generation ~= generation then return end
+					if tabs.boss.needsRetraining and tabs.boss.needsRetraining(tabs.boss.Alien) then return end
+					
+					if tabs.boss.Alien.Data.Target ~= model then
+						tabs.boss.Alien.Data.Target = model
+						tabs.boss.Alien.Data.AttackSequence = nil
+						tabs.boss.Alien.Data.EvadeUntil = 0
+						tabs.boss.Alien.Data.DodgeStomps = false
+					end
+					tabs.boss.Alien.Data.Phase = "Fighting"
+					
+					local char = lp.player and lp.player.Character
+					local hum = char and char:FindFirstChildOfClass("Humanoid")
+					if hum and hum.Health > 0 then
+						tabs.boss.Alien.StatusLabel.Text = "Status: Fighting"
+						if tabs.boss.attack then
+							tabs.boss.attack(tabs.boss.Alien, model, health, maxHealth, hitbox)
+						else
+							warn("[AlienDebug] tabs.boss.attack function is missing!")
+						end
+					else
+						tabs.boss.Alien.StatusLabel.Text = "Status: Waiting for Respawn"
+					end
+				else
+					-- Boss was defeated or is gone! Trigger chest collection before waiting
+					if wasFighting then
+						tabs.boss.Alien.StatusLabel.Text = "Status: Collecting Rewards"
+						tabs.boss.Alien.autoCollectChest(lastKnownPos)
+					end
+
+					tabs.boss.Alien.Data.Target = nil
+					tabs.boss.Alien.Data.Phase = "Waiting"
+					if tabs.boss.Alien.Data.Preparation then
+						tabs.boss.Alien.Data.Preparation = nil
+						if tabs.boss.resumeTraining then tabs.boss.resumeTraining() end
+					elseif wasFighting then
+						if tabs.boss.resumeTraining then tabs.boss.resumeTraining() end
+					end
+					wasFighting = false
+					lastKnownPos = nil
+					tabs.boss.Alien.StatusLabel.Text = "Status: Waiting for Alien Boss"
+				end
+			end)
+			if not success then
+				warn("[AlienDebug Loop Error]:", err)
+			end
+			task.wait(model and 0.03 or 0.25)
+		end
+	end, tabs.boss.Alien.Data.Generation)
+end)
+
+tabs.boss:AddLabel("~~~~~~~~~~")
+
 tabs.boss:AddLabel("Boss Killing V2")
 
 tabs.boss:AddButton("Auto Boss V2", function()
