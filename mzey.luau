@@ -1909,15 +1909,6 @@ tabs.boss.Alien = {
 	}
 }
 
--- Ensure standard global environment fallbacks exist if not defined globally
-local Players = game:GetService("Players")
-local CollectionService = game:GetService("CollectionService")
-local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
-
-lp = lp or { player = LocalPlayer }
-services = services or { collectionservice = CollectionService, workspace = Workspace }
-
 tabs.boss.Alien.getBossDisplayName = function(model)
 	local bossId = model:GetAttribute("BossId") or model.Name
 	return tabs.boss.Alien.Data.Bosses[bossId] or model.Name
